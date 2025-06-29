@@ -1,4 +1,5 @@
 from socket import *
+
 serverName = 'localhost'  # Server address
 serverPort = 12000  # Port number for the server
 
@@ -9,32 +10,20 @@ clientSocket.connect((serverName, serverPort))  # Connect to the server
 
 sentence = input('Input lowercase sentence: ')  # Get input from the user
 
+length = len(sentence) - 2  # Get the length of the input sentence
+
 clientSocket.send(sentence.encode())  # Send the input sentence to the server
 
-def receive_large_message(sock, buffer_size=4096):
-        # Receive a large message from the client
-        len_bytes = sock.recv(2)
-        if not len_bytes:
-            return None # Client does not send any length bytes, return None
-        
-        message_length = struct.unpack('>I', len_bytes)[0]  # Unpack the length of the message
-        receive_data = b''
-        bytes_received = 0 # Initialize the number of bytes received
+count = 0
+data = b''  # Initialize an empty byte string to hold the received data
 
-        while bytes_received < message_length:
-            # Continue receiving data until the entire message is received
-            remaining_bytes = message_length - bytes_received
-            chunk_size = min(buffer_size, remaining_bytes)
-            chunk = sock.recv(chunk_size)
-            if not chunk:
-                break   # No more data, break the loop
-            receive_data += chunk
-            bytes_received += len(chunk)
-        return receive_data.decode()
+while count < length:
+    data = data + clientSocket.recv(64)  # Receive data in chunks of 64 bytes
+    count = len(data)  # Update the count with the length of the received data
 
-modifiedSentence = receive_large_message(clientSocket)  # Receive the modified sentence from the server
+data = data.decode()  # Decode the received bytes to a string
 
-print('From Server:', modifiedSentence)  # Print the modified sentence
+print('From Server:', data)  # Print the modified sentence
 
 #Close the socket
-clientSocket.close()  # Close the client socket 
+clientSocket.close()  # Close the client socket

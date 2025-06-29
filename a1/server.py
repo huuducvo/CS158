@@ -1,5 +1,5 @@
 from socket import *
-import struct
+
 
 serverPort = 12000 # Port number for the server
 
@@ -12,43 +12,30 @@ serverSocket.listen(1) # Listen for incoming connections
 
 while True:  # Keep the server running indefinitely
 
-
-    def receive_large_message(sock, buffer_size=4096):
-        # Receive a large message from the client
-        len_bytes = sock.recv(2)
-        if not len_bytes:
-            return None # Client does not send any length bytes, return None
-        
-        message_length = struct.unpack('>I', len_bytes)[0]  # Unpack the length of the message
-        receive_data = b''  # Initialize an empty byte string to hold the received data
-        bytes_received = 0 # Initialize the number of bytes received
-
-        while bytes_received < message_length:
-            # Continue receiving data until the entire message is received
-            remaining_bytes = message_length - bytes_received
-            chunk_size = min(buffer_size, remaining_bytes)
-            chunk = sock.recv(chunk_size)
-            if not chunk:
-                break   # No more data, break the loop
-            receive_data += chunk
-            bytes_received += len(chunk)
-        return receive_data.decode()
-
     # accept
-    cSocket, addr = serverSocket.accept()  # Accept a connection from a client
+    cnSocket, addr = serverSocket.accept()  # Accept a connection from a client
     print('Connection from:', addr)  # Print the address of the connected client
 
     #receive
-    sentence = receive_large_message(cSocket)  # Receive a large message from the client
+    length = cnSocket.recv(2) # Receive the length of the message
+
+    count = 0
+    data = b''
+
+    while count < length:
+        data = data + cnSocket.recv(64)
+        count = len(data)
+
+    #sentence = cSocket.recv(64).decode()  # Receive a large message from the client
+
+    data = data.decode()  # Decode the received bytes to a string
 
     #process
-    modifiedSentence = sentence.upper()  # Convert the sentence to uppercase
-    print(modifiedSentence)
-    modifiedSentence = f"{len(modifiedSentence):>2}{modifiedSentence}"  # Prepend the length of the modified sentence
-    print(modifiedSentence)
+    capSentence = data.upper()  # Convert the sentence to uppercase
 
     #send
-    cSocket.send(modifiedSentence.encode())  # Send the modified sentence back to the client
+    cnSocket.send(capSentence.encode())  # Send the modified sentence back to the client
 
     #close
-    cSocket.close()  # Close the connection with the client
+    cnSocket.close()  # Close the connection with the client
+    serverSocket.close()  # Close the server socket
