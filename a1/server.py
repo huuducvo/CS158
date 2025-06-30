@@ -7,7 +7,7 @@ serverSocket = socket(AF_INET, SOCK_STREAM) # Create a TCP socket
 serverSocket.bind(('', serverPort)) # Bind the socket to the port
 # This empty string means the server will accept connections on any available interface
 
-serverSocket.listen(5) # Listen for incoming connections
+serverSocket.listen(1) # Listen for incoming connections
 
 while True:  # Keep the server running indefinitely
 
@@ -22,7 +22,7 @@ while True:  # Keep the server running indefinitely
     sentence = b''  # Initialize an empty byte string to hold the received sentence
     while length > count:
         sentence = sentence + cnSocket.recv(64)
-        count += len(data)
+        count += 64
 
     sentence = sentence.decode()  # Decode the received bytes to a string
 
