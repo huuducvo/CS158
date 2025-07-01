@@ -10,20 +10,9 @@ serverSocket.listen(5)  # Listen for incoming connections
 # Function to handle client connections
 def handle_client(cnSocket, addr):
     print('Connected to:', addr)  # Print the address of the connected client
-
-    # Receive the length of the message
-    length = cnSocket.recv(2).decode()
-    count = 0
-    sentence = b''  # Initialize an empty byte string to hold the received sentence
-
-    while count < int(length):
-        data = cnSocket.recv(1024)
-        if not data:
-            break
-        sentence += data
-        count += len(data)
-
-    sentence = sentence.decode()  # Decode the received bytes to a string
+    
+    # Receive
+    sentence = cnSocket.recv(1024).decode()  # Decode the received bytes to a string
 
     # Process
     capSentence = sentence.upper()  # Convert the sentence to uppercase

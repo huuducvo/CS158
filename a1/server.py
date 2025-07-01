@@ -20,7 +20,7 @@ while True:  # Keep the server running indefinitely
 
     count = 0
     sentence = b''  # Initialize an empty byte string to hold the received sentence
-    while length > count:
+    while int(length) > count:
         sentence = sentence + cnSocket.recv(64)
         count += 64
 
