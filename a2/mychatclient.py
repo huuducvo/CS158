@@ -1,39 +1,38 @@
 from socket import *
 import threading
 
-serverName = "localhost"
-serverPort = 12000
+hostname = 'localhost'  # replace with your server's hostname or IP address
+port = 12000
+
+def receive_messages(client_socket): # receive messages from server
+    while True:
+        data = client_socket.recv(1024)
+        print(data.decode())
+
+def send_message(client_socket): # send messages to server
+    while True:
+        msg = input()
+        client_socket.send(msg.encode())
+        if msg == 'exit':
+            break    
 
 def main():
-    clientSocket = socket(AF_INET, SOCK_STREAM) # Create a TCP socket
-    clientSocket.connect((serverName, serverPort)) # Connect to the server
+    client_socket = socket(AF_INET, SOCK_STREAM) # create TCP socket
+    client_socket.connect((hostname, port)) # connect to server
 
-    print(f"Connected to server at {serverName}:{serverPort}. Type 'exit' to disconnect.")
+    print("Connected to chat server. Type 'exit' to leave.\n")
+    # create a thread to receive messages from the server
+    receive_thread = threading.Thread(target=receive_messages, args=(client_socket,)) 
 
-    receiveThread = threading.Thread(target=receive_messages, args=(clientSocket,)) # Start a thread to receive messages from the server
-    receiveThread.start()
+    # create a thread to send messages to the server
+    send_thread = threading.Thread(target=send_message, args=(client_socket,))
 
-    sendThread = threading.Thread(target=send_messages, args=(clientSocket,)) # Start a thread to send messages to the server
-    sendThread.start()
+    receive_thread.start()
+    send_thread.start()
 
-    receiveThread.join() # Wait for the receive thread to finish
-    print("Exiting client...")
+    send_thread.join() # wait for the send thread to finish before closing the socket
+    print("Disconnected from server.") 
+    client_socket.close()
 
-    clientSocket.close()
-
-def receive_messages(clientSocket): # Function to receive messages from the server
-    while True:
-        try:
-            message = clientSocket.recv(1024).decode()
-            if message:
-                print(message)
-            else:
-                break
-        except:
-            break
-def send_messages(clientSocket):
-    while True:
-        message = input("Enter message: ")
-        clientSocket.send(message.encode())
-        if message == "exit":
-            break
+if __name__ == "__main__":
+    main()

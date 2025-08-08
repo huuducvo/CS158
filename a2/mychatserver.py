@@ -10,7 +10,7 @@ lock = threading.Lock() # Lock for synchronizing access to clientList
 def main():
     serverSocket = socket(AF_INET, SOCK_STREAM) # Create a TCP socket
     serverSocket.bind((serverName, serverPort)) # Bind the socket to the server address and port
-    serverSocket.listen(5) # Listen for incoming connections
+    serverSocket.listen() # Listen for incoming connections
     print(f"Server is listening on {serverName}:{serverPort}")
 
     while True:
@@ -27,7 +27,7 @@ def handle_client(clients, addr):
     while True:
         sentence = clients.recv(1024).decode() # Receive message from client
 
-        if sentence == "exit": # Check if the message is "exit"
+        if sentence == 'exit': # Check if the message is "exit"
             print(f"Client {addr} requested to exit.")
             with lock:
                 clientList.remove(clients)
