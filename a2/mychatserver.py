@@ -7,18 +7,6 @@ serverPort = 12000  # Server's port number
 clientList = [] # List of connected clients
 lock = threading.Lock() # Lock for synchronizing access to clientList
 
-def main():
-    serverSocket = socket(AF_INET, SOCK_STREAM) # Create a TCP socket
-    serverSocket.bind((serverName, serverPort)) # Bind the socket to the server address and port
-    serverSocket.listen() # Listen for incoming connections
-    print(f"Server is listening on {serverName}:{serverPort}")
-
-    while True:
-        clients, addr = serverSocket.accept() # Accept a new client connection
-        print(f"New connection from {addr}")
-        clientThread = threading.Thread(target=handle_client, args=(clients, addr))
-        clientThread.start() # Start a new thread to handle the client
-
 def handle_client(clients, addr):
     with lock: # Acquire the lock before modifying clientList
         clientList.append(clients)
@@ -41,3 +29,18 @@ def handle_client(clients, addr):
                     if client != clients: # Don't send the message back to the sender
                         client.send(f"From {addr}: {sentence}".encode())
 
+
+def main():
+    serverSocket = socket(AF_INET, SOCK_STREAM) # Create a TCP socket
+    serverSocket.bind((serverName, serverPort)) # Bind the socket to the server address and port
+    serverSocket.listen() # Listen for incoming connections
+    print(f"Server is listening on {serverName}:{serverPort}")
+
+    while True:
+        clients, addr = serverSocket.accept() # Accept a new client connection
+        print(f"New connection from {addr}")
+        clientThread = threading.Thread(target=handle_client, args=(clients, addr))
+        clientThread.start() # Start a new thread to handle the client
+
+if __name__ == "__main__":
+    main()
