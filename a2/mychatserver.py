@@ -41,3 +41,5 @@ def handle_client(clients, addr):
                     if client != clients: # Don't send the message back to the sender
                         client.send(f"From {addr}: {sentence}".encode())
 
+if __name__ == "__main__":
+    main()
